@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 
 const configuration = new Configuration({
-  apiKey: "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",
+  apiKey: "",
   // apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
