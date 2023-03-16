@@ -122,8 +122,8 @@ export default function Home() {
                       setMode(e.target.value as "train" | "chat")
                     }
                   >
-                    <option value="train">Train</option>
-                    <option value="chat">Chat</option>
+                    <option value="train">TrainHuj</option>
+                    <option value="chat">Chat hujat</option>
                   </select>
                 </div>
               </div>
