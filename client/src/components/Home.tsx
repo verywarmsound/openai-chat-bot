@@ -1,6 +1,21 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
-import { IconArrowRight, IconSearch } from "@tabler/icons-react";
+
 import { Answer } from "./Answer/Answer";
+import {
+  Button,
+  Box,
+  Select,
+  MenuItem,
+  CircularProgress,
+  Typography,
+  Grow,
+} from "@mui/material";
+import { IconButton, InputBase, Paper } from "@mui/material";
+import {
+  Search as IconSearch,
+  ArrowRightAlt as IconArrowRight,
+  Settings,
+} from "@mui/icons-material";
 
 export type Chunk = {
   content: string;
@@ -15,9 +30,17 @@ export default function Home() {
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [mode, setMode] = useState<"train" | "chat">("chat");
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   const apiKey = "";
   const handleTrain = async () => {
@@ -65,10 +88,11 @@ export default function Home() {
       body: JSON.stringify({ query: query, apiKey }),
     })
       .then((res) => res.json())
-      .then((data) => setAnswer(data))
+      .then((data) => {
+        setAnswer(data);
+        setLoading(false);
+      })
       .catch((err) => console.error(err));
-
-    setLoading(false);
 
     if (!searchResponse) {
       setLoading(false);
@@ -80,6 +104,7 @@ export default function Home() {
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       if (mode === "train") {
         handleTrain();
       } else {
@@ -100,80 +125,111 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex flex-col h-screen">
-        <br></br>
-        <div className="flex-1 overflow-auto">
-          <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center px-3 pt-4 sm:pt-8">
-            <button
-              className="mt-4 flex cursor-pointer items-center space-x-2 rounded-full border border-zinc-600 px-3 py-1 text-sm hover:opacity-50"
+      <div>
+        {/* <Button variant="contained" onClick={handleOpen}>
+          Open Chatbot
+        </Button> */}
+
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            minWidth: "30vw",
+          }}
+        >
+          <div>
+            <Button
               onClick={() => setShowSettings(!showSettings)}
+              startIcon={<Settings />}
             >
-              {showSettings ? "Hide" : "Show"} Settings
-            </button>
+              {showSettings ? "Hide" : "Show"} Mode
+            </Button>
 
             {showSettings && (
-              <div className="w-[340px] sm:w-[400px]">
-                <div>
-                  <div>Mode</div>
-                  <select
-                    className="max-w-[400px] block w-full cursor-pointer rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                    value={mode}
-                    onChange={(e) =>
-                      setMode(e.target.value as "train" | "chat")
-                    }
-                  >
-                    <option value="train">TrainHuj</option>
-                    <option value="chat">Chat hujat</option>
-                  </select>
-                </div>
+              <div style={{ display: "inline-flex" }}>
+                {/* <div>Mode</div> */}
+                <Select
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value as "train" | "chat")}
+                >
+                  <MenuItem sx={{ padding: "10px" }} value="train">
+                    Train
+                  </MenuItem>
+                  <MenuItem sx={{ padding: "10px" }} value="chat">
+                    Chat
+                  </MenuItem>
+                </Select>
               </div>
-            )}
-            <div className="relative w-full mt-4">
-              <IconSearch className="absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
-
-              <input
-                ref={inputRef}
-                className="h-12 w-full rounded-full border border-zinc-600 pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
-                type="text"
-                placeholder="What is a yacht brokerage?"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-
-              <button>
-                <IconArrowRight
-                  onClick={mode === "train" ? handleTrain : handleAnswer}
-                  className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-blue-500 p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
-                />
-              </button>
-            </div>
-
-            {loading ? (
-              <div className="mt-6 w-full">
-                {mode === "chat" && (
-                  <>
-                    <div className="font-bold text-2xl">Answer</div>
-                    <div className="animate-pulse mt-2">
-                      <div className="h-4 bg-gray-300 rounded"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : answer ? (
-              <div className="mt-6">
-                <div className="font-bold text-2xl mb-2">Answer:</div>
-                <Answer text={answer} />
-              </div>
-            ) : (
-              chunks.length > 0 && <div className="mt-6 pb-16"></div>
             )}
           </div>
-        </div>
+          <Paper
+            component="form"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              marginTop: "2rem",
+              marginBottom: "2rem",
+              borderRadius: "999px",
+              boxShadow: 2,
+              width: "100%",
+            }}
+          >
+            <IconButton sx={{ p: 1, opacity: 0.5, mr: 1, borderRadius: "50%" }}>
+              <IconSearch />
+            </IconButton>
+
+            <InputBase
+              inputRef={inputRef}
+              sx={{ ml: 1, flex: 1, height: "50px", fontSize: "16px" }}
+              type="text"
+              placeholder="What is a yacht brokerage?"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+
+            <IconButton
+              onClick={mode === "train" ? handleTrain : handleAnswer}
+              sx={{
+                p: 1,
+                backgroundColor: "primary.main",
+                borderRadius: "50%",
+                "&:hover": { backgroundColor: "primary.dark" },
+              }}
+            >
+              <IconArrowRight sx={{ fontSize: "24px", color: "white" }} />
+            </IconButton>
+          </Paper>
+
+          {loading ? (
+            <>
+              {mode === "chat" && (
+                <>
+                  {/* <Typography variant="h5" fontWeight="bold">
+                        Answer
+                      </Typography> */}
+
+                  <CircularProgress
+                    sx={{ height: 2, width: 2, mt: 2 }}
+                    color="primary"
+                  />
+                </>
+              )}
+            </>
+          ) : answer ? (
+            <Box>
+              {/* <div style={{ margin: "2rem" }}>Answer:</div> */}
+              <Answer text={answer} />
+            </Box>
+          ) : (
+            chunks.length > 0 && <div></div>
+          )}
+        </Box>
       </div>
     </>
   );

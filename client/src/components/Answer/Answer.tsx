@@ -1,3 +1,4 @@
+import { Paper, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import styles from "./answer.module.css";
 
@@ -14,7 +15,7 @@ export const Answer: React.FC<AnswerProps> = ({ text }) => {
 
   return (
     <div>
-      <span className={styles.fadeIn}>{words}</span>
+      <Typography style={{ textAlign: 'left' }} className={styles.fadeIn}>{words}</Typography>
     </div>
   );
 };
